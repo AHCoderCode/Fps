@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+    <meta name="theme-color" content="#080d18" />
+    <meta name="description" content="Arcfield — a fast, stylized first-person arena shooter with four bot difficulties." />
+    <title>ARCFIELD — Arena FPS</title>
+  </head>
+  <body>
+    <main id="app-shell">
+      <canvas id="game-canvas" aria-label="3D arena game"></canvas>
+
+      <section id="menu-screen" class="screen">
+        <div class="menu-card">
+          <div class="eyebrow"><span class="eyebrow-dot"></span> ARCFIELD // COMBAT SIMULATION</div>
+          <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+          <h1>OWN THE<br /><em>ARENA.</em></h1>
+          <p class="menu-copy">A fast, focused arena. Five opponents. No loadout grind. Just play.</p>
+          <div class="mode-chip"><span class="status-dot"></span> OFFLINE BOT MATCH <span class="chip-divider">/</span> 5 OPPONENTS</div>
+          <label class="field-label" for="bot-difficulty">OPPONENT DIFFICULTY</label>
+          <select id="bot-difficulty" class="select-control">
+            <option value="easy">01 — Easy</option>
+            <option value="normal" selected>02 — Normal</option>
+            <option value="hard">03 — Hard</option>
+            <option value="expert">04 — Expert</option>
+          </select>
+          <button id="start-btn" class="primary-button">ENTER THE ARENA <span>↗</span></button>
+          <button id="menu-settings-btn" class="text-button">SETTINGS</button>
+          <div class="menu-note">ONLINE MULTIPLAYER IS NOT CONFIGURED IN THIS BUILD.</div>
+        </div>
+        <div class="menu-side">
+          <div class="side-index">FIELD NOTES <span>001—004</span></div>
+          <div class="side-stat"><strong>05</strong><span>AI OPPONENTS</span></div>
+          <div class="side-stat"><strong>05</strong><span>CORE WEAPONS</span></div>
+          <div class="side-stat"><strong>02</strong><span>UTILITY TYPES</span></div>
+          <div class="side-rule"></div>
+          <p>WASD MOVE<br />MOUSE AIM<br />1—5 SWITCH<br />R RELOAD · SPACE JUMP</p>
+          <div class="side-version">ARCFIELD // BUILD 1.0</div>
+        </div>
+      </section>
+
+      <section id="hud" class="hud hidden" aria-live="polite">
+        <header class="hud-top">
+          <div class="hud-brand"><span class="hud-mark">A</span><span>ARCFIELD <small>ARENA</small></span></div>
+          <div class="match-clock"><small>TIME REMAINING</small><strong id="match-clock">03:00</strong></div>
+          <div class="scoreboard">
+            <div class="score-team blue-team"><small>YOUR TEAM</small><strong id="player-score">00</strong></div>
+            <div class="score-divider">—</div>
+            <div class="score-team red-team"><small>OPPOSITION</small><strong id="bot-score">00</strong></div>
+          </div>
+          <button id="pause-btn" class="icon-button" aria-label="Pause match" title="Pause (Esc)">Ⅱ</button>
+        </header>
+
+        <div class="hud-left">
+          <div class="hud-label">COMBAT STATUS</div>
+          <div class="stat-line"><span>ELIMS</span><strong id="elims">00</strong></div>
+          <div class="stat-line"><span>DEATHS</span><strong id="deaths">00</strong></div>
+          <div class="stat-line"><span>K / D</span><strong id="kd">0.00</strong></div>
+          <div id="kill-feed" class="kill-feed"></div>
+        </div>
+
+        <div id="crosshair" class="crosshair" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+        <div id="hit-marker" class="hit-marker" aria-hidden="true">×</div>
+        <div id="damage-vignette" class="damage-vignette"></div>
+        <div id="scope-overlay" class="scope-overlay"><div class="scope-cross"></div></div>
+
+        <div class="hud-bottom">
+          <div class="health-block">
+            <div class="hud-label">VITALS <span id="health-number">100</span></div>
+            <div class="bar-track"><div id="health-fill" class="bar-fill health-fill"></div></div>
+            <div class="hud-subline"><span>SHIELD OFFLINE</span><span id="status-label">READY</span></div>
+          </div>
+          <div class="weapon-block">
+            <div class="weapon-name"><span id="weapon-category">PRIMARY</span><strong id="weapon-name">ASSAULT RIFLE</strong></div>
+            <div class="ammo-readout"><strong id="ammo-mag">30</strong><span>/</span><span id="ammo-reserve">90</span></div>
+            <div id="reload-label" class="reload-label"></div>
+          </div>
+        </div>
+
+        <div id="weapon-slots" class="weapon-slots">
+          <button data-slot="1" class="weapon-slot active"><small>1</small><span>AR</span></button>
+          <button data-slot="2" class="weapon-slot"><small>2</small><span>SR</span></button>
+          <button data-slot="3" class="weapon-slot"><small>3</small><span>HG</span></button>
+          <button data-slot="4" class="weapon-slot"><small>4</small><span>RV</span></button>
+          <button data-slot="5" class="weapon-slot"><small>5</small><span>KN</span></button>
+          <div class="utility-slots"><span>G <b>GRENADE</b></span><span>H <b>AREA DENIAL</b></span></div>
+        </div>
+
+        <div class="control-hint">TAB SCOREBOARD <span>·</span> ESC PAUSE <span>·</span> RMB FOCUS</div>
+      </section>
+
+      <section id="scoreboard-panel" class="scoreboard-panel hidden">
+        <div class="panel-kicker">LIVE MATCH // LOCAL SIMULATION</div>
+        <h2>COMBAT <em>ROSTER</em></h2>
+        <div class="roster-head"><span>PLAYER</span><span>ELIMS</span><span>DEATHS</span><span>STATUS</span></div>
+        <div id="roster-list"></div>
+      </section>
+
+      <section id="touch-controls" class="touch-controls hidden" aria-label="Touch game controls">
+        <div id="move-stick" class="move-stick"><div id="move-knob" class="move-knob"></div><span>MOVE</span></div>
+        <div class="touch-action-grid">
+          <button data-touch="aim" class="touch-action aim-action">AIM</button>
+          <button data-touch="jump" class="touch-action">JUMP</button>
+          <button data-touch="reload" class="touch-action">RELOAD</button>
+          <button data-touch="knife" class="touch-action">MELEE</button>
+          <button data-touch="grenade" class="touch-action utility-action">G</button>
+          <button data-touch="molotov" class="touch-action utility-action">H</button>
+          <button data-touch="fire" class="touch-action fire-action">FIRE</button>
+        </div>
+      </section>
+
+      <section id="pause-screen" class="screen screen-modal hidden">
+        <div class="modal-card">
+          <div class="eyebrow">ARCFIELD // MATCH PAUSED</div>
+          <h2>TAKE A<br /><em>BREATHER.</em></h2>
+          <button id="resume-btn" class="primary-button">RESUME MATCH</button>
+          <button id="pause-settings-btn" class="secondary-button">SETTINGS</button>
+          <button id="quit-btn" class="text-button">RETURN TO MENU</button>
+        </div>
+      </section>
+
+      <section id="result-screen" class="screen screen-modal hidden">
+        <div class="modal-card result-card">
+          <div class="eyebrow">ARCFIELD // MATCH COMPLETE</div>
+          <div id="result-kicker" class="result-kicker">VICTORY</div>
+          <h2 id="result-title">FIELD<br /><em>DOMINATED.</em></h2>
+          <p id="result-summary" class="menu-copy">You won the match.</p>
+          <div class="result-stats"><div><strong id="result-elims">00</strong><span>ELIMINATIONS</span></div><div><strong id="result-deaths">00</strong><span>DEATHS</span></div></div>
+          <button id="rematch-btn" class="primary-button">PLAY AGAIN <span>↗</span></button>
+          <button id="result-menu-btn" class="text-button">MAIN MENU</button>
+        </div>
+      </section>
+
+      <section id="settings-screen" class="screen screen-modal hidden">
+        <div class="modal-card settings-card">
+          <div class="eyebrow">ARCFIELD // CONFIGURATION</div>
+          <h2>GAME <em>SETTINGS.</em></h2>
+          <label class="setting-row"><span>MOUSE SENSITIVITY</span><input id="sensitivity-setting" type="range" min="0.3" max="2.5" step="0.05" value="1" /><strong id="sensitivity-value">1.00×</strong></label>
+          <label class="setting-row"><span>MASTER VOLUME</span><input id="volume-setting" type="range" min="0" max="1" step="0.05" value="0.55" /><strong id="volume-value">55%</strong></label>
+          <label class="setting-check"><input id="invert-y-setting" type="checkbox" /> INVERT VERTICAL AIM</label>
+          <button id="settings-close-btn" class="primary-button">DONE</button>
+        </div>
+      </section>
+
+      <div id="toast" class="toast hidden"></div>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
